@@ -8,7 +8,6 @@ import AuthLayout from "@/component/auth/auth-layout";
 import useFormValidation from "@/lib/use-form-validation";
 import {useRouter} from "next/navigation";
 
-const BaseUrl = process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST || '';
 
 export default function LoginPage() {
     const [formData, setFormData] = useState({
@@ -34,7 +33,7 @@ export default function LoginPage() {
         if (!isValid) return;
 
         try {
-            const response = await fetch(`${BaseUrl}login/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}login/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
