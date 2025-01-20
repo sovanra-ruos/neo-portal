@@ -33,7 +33,7 @@ export default function LoginPage() {
         if (!isValid) return;
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL_LOCALHOST}login/`, {
+            const response = await fetch("https://neo-portal.cloudinator.cloud/api/login/", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
