@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {Category} from "@/lib/product";
 import {useGetCategoriesQuery} from "@/redux/service/category";
+import Image from "next/image";
 
 
 interface CategoriesProps {
@@ -13,7 +14,7 @@ interface CategoriesProps {
 export function Categories({ categories }: CategoriesProps) {
 
     const {data} = useGetCategoriesQuery({
-        page: 1,
+        page: 0,
         size: 8
     })
 
@@ -42,10 +43,12 @@ export function Categories({ categories }: CategoriesProps) {
                         >
                             <Link href={`/category/${category.name}`} className="block group">
                                 <div className="relative aspect-square overflow-hidden rounded-lg mb-2">
-                                    <img
-                                        src={category.image || "/placeholder.svg"}
+                                    <Image
+                                        src={category.image}
                                         alt={category.name}
                                         className="object-cover w-full h-full transition-transform group-hover:scale-110"
+                                        width={300}
+                                        height={300}
                                     />
                                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <span className="text-white text-lg font-semibold">Shop Now</span>

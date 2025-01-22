@@ -11,7 +11,16 @@ import { useParams } from "next/navigation"
 import { useGetInventoryByUuidQuery } from "@/redux/service/inventory"
 import type { InventoryType } from "@/app/dashboard/inventory/page"
 
-
+type CartItem = {
+    uuid: string
+    product: {
+        id: number
+        name: string
+        price: number
+        image: string
+    }
+    qty: number
+}
 
 export default function ProductDetail() {
     const param = useParams()
@@ -49,6 +58,31 @@ export default function ProductDetail() {
         setCurrentImageIndex((prev) => (prev === productImages.length - 1 ? 0 : prev + 1))
     }
 
+
+
+    const addToCart = () => {
+        const storedCart = localStorage.getItem('cart')
+        const cartItems = storedCart ? JSON.parse(storedCart) : []
+        const existingItemIndex = cartItems.findIndex((item:CartItem ) => item.uuid === product.uuid)
+
+        if (existingItemIndex >= 0) {
+            cartItems[existingItemIndex].qty += 1
+        } else {
+            cartItems.push({
+                uuid: product.uuid,
+                product: {
+                    uuid: product.product.uuid,
+                    name: product.product.name,
+                    price: product.product.price,
+                    image: product.product.image,
+                },
+                qty: 1,
+            })
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cartItems))
+    }
+
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -69,6 +103,7 @@ export default function ProductDetail() {
                                     layout="fill"
                                     objectFit="cover"
                                     className="transition-all duration-300 hover:scale-105"
+                                    unoptimized={true}
                                 />
                             </motion.div>
                         </AnimatePresence>
@@ -119,7 +154,7 @@ export default function ProductDetail() {
                     <p className="text-2xl font-bold">${product?.product?.price.toFixed(2)}</p>
                     <p className="text-gray-600">{product?.product?.description}</p>
                     <div className="flex space-x-4">
-                        <Button className="flex-1">
+                        <Button className="flex-1" onClick={addToCart}>
                             <ShoppingCart className="w-4 h-4 mr-2" />
                             Add to Cart
                         </Button>
@@ -191,4 +226,3 @@ export default function ProductDetail() {
         </div>
     )
 }
-

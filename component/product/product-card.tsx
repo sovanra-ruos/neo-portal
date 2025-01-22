@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ShoppingCart, Heart, AlertCircle } from "lucide-react"
@@ -30,11 +30,23 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [isError, setIsError] = useState(false)
+    const [cart, setCart] = useState<InventoryType[]>([])
+
+    useEffect(() => {
+        const storedCart = JSON.parse(localStorage.getItem('cart') || '[]')
+        setCart(storedCart)
+    }, [])
 
     const handleImageLoad = () => setIsLoading(false)
     const handleImageError = () => {
         setIsLoading(false)
         setIsError(true)
+    }
+
+    const addToCart = (product: InventoryType) => {
+        const updatedCart = [...cart, product]
+        setCart(updatedCart)
+        localStorage.setItem('cart', JSON.stringify(updatedCart))
     }
 
     const discountPercentage = product.product.salePrice
@@ -94,7 +106,11 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Link>
                 </CardContent>
                 <CardFooter className="p-4 pt-0 gap-2">
-                    <Button className="w-full gap-2" disabled={product.qty === 0}>
+                    <Button
+                        className="w-full gap-2"
+                        disabled={product.qty === 0}
+                        onClick={() => addToCart(product)}
+                    >
                         <ShoppingCart className="w-4 h-4" />
                         {product.qty === 0 ? "Out of Stock" : "Add to Cart"}
                     </Button>
@@ -107,40 +123,3 @@ export function ProductCard({ product }: ProductCardProps) {
         </motion.div>
     )
 }
-
-// Error Boundary Component
-import React, { Component, type ErrorInfo, type ReactNode } from "react"
-
-interface ErrorBoundaryProps {
-    children?: ReactNode
-}
-
-interface ErrorBoundaryState {
-    hasError: boolean
-}
-
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-    public state: ErrorBoundaryState = {
-        hasError: false,
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    public static getDerivedStateFromError(_: Error): ErrorBoundaryState {
-        return { hasError: true }
-    }
-
-    public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error("Uncaught error:", error, errorInfo)
-    }
-
-    public render() {
-        if (this.state.hasError) {
-            return <h1>Sorry.. there was an error</h1>
-        }
-
-        return this.props.children
-    }
-}
-
-export { ErrorBoundary }
-

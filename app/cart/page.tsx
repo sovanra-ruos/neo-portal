@@ -1,50 +1,54 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Minus, Plus, Trash2 } from 'lucide-react'
 
-
-interface CartItem {
-    id: string
-    name: string
-    price: number
-    quantity: number
-    image: string
+type CartItem = {
+    uuid: string
+    product: {
+        id: number
+        name: string
+        price: number
+        image: string
+    }
+    qty: number
 }
 
 export default function CartPage() {
-    const [cartItems, setCartItems] = useState<CartItem[]>([
-        {
-            id: "1",
-            name: "MSI Titan GT77 HX 13V-075US Gaming Laptop",
-            price: 4999.99,
-            quantity: 1,
-            image: "/placeholder.svg?height=80&width=80",
-        },
-        {
-            id: "2",
-            name: "MSI MEG Trident X2 13TH Gaming Desktop",
-            price: 3999.99,
-            quantity: 1,
-            image: "/placeholder.svg?height=80&width=80",
-        },
-    ])
+    const [cartItems, setCartItems] = useState<CartItem[]>([])
 
-    const updateQuantity = (id: string, newQuantity: number) => {
+    useEffect(() => {
+        const storedCart = localStorage.getItem('cart')
+        if (storedCart) {
+            setCartItems(JSON.parse(storedCart))
+        }
+    }, [])
+
+    useEffect(() => {
+        if (cartItems.length > 0) {
+            localStorage.setItem('cart', JSON.stringify(cartItems))
+        }
+    }, [cartItems])
+
+    const updateQuantity = (uuid: string, newQuantity: number) => {
         setCartItems(items =>
             items.map(item =>
-                item.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
+                item.uuid === uuid ? { ...item, qty: Math.max(1, newQuantity) } : item
             )
         )
     }
 
-    const removeItem = (id: string) => {
-        setCartItems(items => items.filter(item => item.id !== id))
+    const removeItem = (uuid: string) => {
+        setCartItems(items => {
+            const updatedItems = items.filter(item => item.uuid !== uuid)
+            localStorage.setItem('cart', JSON.stringify(updatedItems))
+            return updatedItems
+        })
     }
 
-    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const total = cartItems.reduce((sum, item) => sum + item.product.price * item.qty, 0)
 
     return (
         <section className="container mx-auto px-4 py-12">
@@ -55,36 +59,36 @@ export default function CartPage() {
                 <div className="grid md:grid-cols-3 gap-6">
                     <div className="md:col-span-2 space-y-4">
                         {cartItems.map(item => (
-                            <div key={item.id} className="flex items-center space-x-4 border-b pb-4">
-                                <img src={item.image || "/placeholder.svg"} alt={item.name}
+                            <div key={item.uuid} className="flex items-center space-x-4 border-b pb-4">
+                                <img src={item.product.image || "/placeholder.svg"} alt={item.product.name}
                                      className="w-20 h-20 object-cover"/>
                                 <div className="flex-1">
-                                    <h3 className="font-medium">{item.name}</h3>
-                                    <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                                    <h3 className="font-medium">{item.product.name}</h3>
+                                    <p className="text-sm text-muted-foreground">${item.product.price.toFixed(2)}</p>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                        onClick={() => updateQuantity(item.uuid, item.qty - 1)}
                                     >
                                         <Minus className="h-4 w-4"/>
                                     </Button>
                                     <Input
                                         type="number"
-                                        value={item.quantity}
-                                        onChange={e => updateQuantity(item.id, parseInt(e.target.value))}
+                                        value={item.qty}
+                                        onChange={e => updateQuantity(item.uuid, parseInt(e.target.value))}
                                         className="w-16 text-center"
                                     />
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                        onClick={() => updateQuantity(item.uuid, item.qty + 1)}
                                     >
                                         <Plus className="h-4 w-4"/>
                                     </Button>
                                 </div>
-                                <Button variant="ghost" size="icon" onClick={() => removeItem(item.id)}>
+                                <Button variant="ghost" size="icon" onClick={() => removeItem(item.uuid)}>
                                     <Trash2 className="h-4 w-4"/>
                                 </Button>
                             </div>
@@ -115,4 +119,3 @@ export default function CartPage() {
         </section>
     )
 }
-

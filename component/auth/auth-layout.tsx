@@ -5,7 +5,7 @@ interface AuthLayoutProps {
     image?: string
 }
 
-export default function AuthLayout({ children, title, description, image = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-UDkRjBMy2CGS2paMcqxF6ClD5CTnrC.png" }: AuthLayoutProps) {
+export default function AuthLayout({ children, title, description, image = "https://neo-store.cloudinator.cloud/images/signup.png" }: AuthLayoutProps) {
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
             <div className="relative hidden md:block md:w-1/2 bg-muted">
